@@ -1,5 +1,10 @@
 use crossterm::event::{Event, KeyCode};
-use ratatui::{DefaultTerminal, Frame, layout::*};
+use ratatui::{
+    DefaultTerminal, Frame,
+    layout::*,
+    style::{Color, Stylize},
+    widgets::{Block, Borders, Paragraph},
+};
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
@@ -23,11 +28,18 @@ fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
 
 fn render(frame: &mut Frame) {
     let outer_layout = Layout::default()
-        .direction(Direction::Horizontal)
+        .direction(Direction::Vertical)
         .margin(1)
-        .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
+        .constraints(vec![Constraint::Fill(1), Constraint::Fill(5)])
         .split(frame.area());
 
-    frame.render_widget("REDDITUI", outer_layout[0]);
-    frame.render_widget("IS AWESOME", outer_layout[1]);
+    frame.render_widget(
+        Paragraph::new("ReddiTUI, by Kyle").block(Block::new().bold().fg(Color::Red).borders(Borders::ALL)),
+        outer_layout[0],
+    );
+
+    frame.render_widget(
+        Paragraph::new("[content goes here]").block(Block::new().bold().fg(Color::Blue).borders(Borders::ALL)),
+        outer_layout[1],
+    );
 }
