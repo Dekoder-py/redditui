@@ -17,12 +17,14 @@ struct Args {
 struct State {
     posts: Vec<reddit::Post>,
     selected: usize,
+    subreddit: String,
 }
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
     let posts = reddit::fetch_reddit_content();
-    let mut state = State { posts, selected: 0 };
+    let args = Args::parse();
+    let mut state = State { posts, selected: 0, subreddit: args.subreddit };
     ratatui::run(|terminal| app(terminal, &mut state))?;
     Ok(())
 }
@@ -59,13 +61,13 @@ fn render(frame: &mut Frame, state: &State) {
         .split(frame.area());
 
     frame.render_widget(
-        Paragraph::new("ReddiTUI, by Kyle")
+        Paragraph::new(format!("ReddiTUI | Browsing r/{}", state.subreddit))
             .block(Block::new().bold().fg(Color::Red).borders(Borders::ALL)),
         outer_layout[0],
     );
 
     let content = if let Some(post) = state.posts.get(state.selected) {
-        format!("{}", post.title)
+        format!("{}  [{} upvotes]", post.title, post.ups)
     } else {
         "No posts loaded".to_string()
     };
@@ -109,6 +111,7 @@ mod reddit {
     pub struct Post {
         pub title: String,
         pub selftext: String,
+        pub ups: u32,
     }
 
     pub fn fetch_reddit_content() -> Vec<Post> {
