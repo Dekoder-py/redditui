@@ -34,12 +34,60 @@ fn render(frame: &mut Frame) {
         .split(frame.area());
 
     frame.render_widget(
-        Paragraph::new("ReddiTUI, by Kyle").block(Block::new().bold().fg(Color::Red).borders(Borders::ALL)),
+        Paragraph::new("ReddiTUI, by Kyle")
+            .block(Block::new().bold().fg(Color::Red).borders(Borders::ALL)),
         outer_layout[0],
     );
 
     frame.render_widget(
-        Paragraph::new("[content goes here]").block(Block::new().bold().fg(Color::Blue).borders(Borders::ALL)),
+        Paragraph::new("[content goes here]")
+            .block(Block::new().bold().fg(Color::Blue).borders(Borders::ALL)),
         outer_layout[1],
     );
+}
+
+mod reddit {
+    use serde::Deserialize;
+
+    #[derive(Deserialize, Debug)]
+    struct Listing {
+        data: ListingData,
+    }
+
+    #[derive(Deserialize, Debug)]
+    struct ListingData {
+        children: Vec<ListingChild>,
+    }
+
+    #[derive(Deserialize, Debug)]
+    struct ListingChild {
+        data: Post,
+    }
+
+    #[derive(Deserialize, Debug, Clone)]
+    pub struct Post {
+        pub title: String,
+        pub selftext: String,
+    }
+
+    pub fn fetch_reddit_content() -> Vec<Post> {
+        let url = "https://www.reddit.com/r/rust.json";
+        let client = reqwest::blocking::Client::builder()
+            .user_agent("Mozilla/5.0; rv:148.0")
+            .build()
+            .expect("failed to build");
+
+        let resp: Listing = client
+            .get(url)
+            .send()
+            .expect("failed to get r/rust")
+            .json()
+            .expect("failed to parse response");
+
+        resp.data
+            .children
+            .iter()
+            .map(|child| child.data.clone())
+            .collect()
+    }
 }
