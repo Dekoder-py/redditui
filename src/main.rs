@@ -5,6 +5,14 @@ use ratatui::{
     style::{Color, Stylize},
     widgets::{Block, Borders, Paragraph},
 };
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+struct Args {
+    /// Subreddit to browse
+    #[arg(value_name="SUBREDDIT", default_value="rust")]
+    subreddit: String,
+}
 
 struct State {
     posts: Vec<reddit::Post>,
@@ -104,7 +112,10 @@ mod reddit {
     }
 
     pub fn fetch_reddit_content() -> Vec<Post> {
-        let url = "https://www.reddit.com/r/rust.json";
+        use clap::Parser;
+
+        let args = super::Args::parse();
+        let url = format!("https://www.reddit.com/r/{}.json", args.subreddit);
         let client = reqwest::blocking::Client::builder()
             .user_agent("Mozilla/5.0; rv:148.0")
             .build()
