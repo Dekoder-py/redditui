@@ -27,6 +27,16 @@ fn app(terminal: &mut DefaultTerminal, state: &mut State) -> std::io::Result<()>
                 if key.code == KeyCode::Char('q') {
                     break Ok(());
                 }
+                if key.code == KeyCode::Char('j') {
+                    if state.selected != 0 {
+                        state.selected -= 1;
+                    }
+                }
+                if key.code == KeyCode::Char('k') {
+                    if state.posts.get(state.selected + 1).is_some() {
+                        state.selected += 1;
+                    }
+                }
             }
             _ => {}
         }
@@ -37,7 +47,7 @@ fn render(frame: &mut Frame, state: &State) {
     let outer_layout = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
-        .constraints(vec![Constraint::Fill(1), Constraint::Fill(5)])
+        .constraints(vec![Constraint::Fill(1), Constraint::Fill(1), Constraint::Fill(9)])
         .split(frame.area());
 
     frame.render_widget(
@@ -47,15 +57,25 @@ fn render(frame: &mut Frame, state: &State) {
     );
 
     let content = if let Some(post) = state.posts.get(state.selected) {
-        format!("{}\n  {}", post.title, post.selftext)
+        format!("{}", post.title)
     } else {
         "No posts loaded".to_string()
     };
 
     frame.render_widget(
-        Paragraph::new(content)
-            .block(Block::new().bold().fg(Color::Blue).borders(Borders::ALL)),
+        Paragraph::new(content).block(Block::new().bold().fg(Color::Cyan).borders(Borders::ALL)),
         outer_layout[1],
+    );
+
+    let content = if let Some(post) = state.posts.get(state.selected) {
+        format!("{}", post.selftext)
+    } else {
+        "".to_string()
+    };
+
+    frame.render_widget(
+        Paragraph::new(content).block(Block::new().bold().fg(Color::Blue).borders(Borders::ALL)),
+        outer_layout[2],
     );
 }
 
