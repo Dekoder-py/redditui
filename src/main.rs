@@ -57,7 +57,7 @@ fn render(frame: &mut Frame, state: &State) {
     let outer_layout = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
-        .constraints(vec![Constraint::Fill(1), Constraint::Fill(1), Constraint::Fill(9)])
+        .constraints(vec![Constraint::Percentage(8), Constraint::Percentage(8), Constraint::Percentage(85)])
         .split(frame.area());
 
     frame.render_widget(
