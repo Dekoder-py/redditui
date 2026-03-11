@@ -2,6 +2,9 @@
 name = "redditui"
 version = "0.1.0"
 edition = "2024"
+description = "Browse reddit in a TUI!"
+license = "MIT"
+readme = "README.md"
 
 [dependencies]
 color-eyre = "0.6.5"
