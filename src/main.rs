@@ -1,5 +1,5 @@
 use crossterm::event::{Event, KeyCode};
-use ratatui::{DefaultTerminal, Frame};
+use ratatui::{DefaultTerminal, Frame, layout::*};
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
@@ -9,16 +9,11 @@ fn main() -> color_eyre::Result<()> {
 
 fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
     loop {
+        terminal.draw(render)?;
         match crossterm::event::read()? {
             Event::Key(key) => {
                 if key.code == KeyCode::Char('q') {
                     break Ok(());
-                }
-
-                if key.code == KeyCode::Char('r') {
-                    terminal.draw(rick)?;
-                } else {
-                    terminal.draw(render)?;
                 }
             }
             _ => {}
@@ -27,9 +22,12 @@ fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
 }
 
 fn render(frame: &mut Frame) {
-    frame.render_widget("REDDITUI", frame.area());
-}
+    let outer_layout = Layout::default()
+        .direction(Direction::Horizontal)
+        .margin(1)
+        .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
+        .split(frame.area());
 
-fn rick(frame: &mut Frame) {
-    frame.render_widget("Never gonna give you up!", frame.area());
+    frame.render_widget("REDDITUI", outer_layout[0]);
+    frame.render_widget("IS AWESOME", outer_layout[1]);
 }
