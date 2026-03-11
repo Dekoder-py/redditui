@@ -9,7 +9,7 @@ redditui # open redditui to r/rust
 
 # or,
 
-redditui opensource # open redditui to r/opensource
+redditui opensource # open redditui to r/opensource (or any other subreddit)
 ```
 
 Scroll with j (down) and k (up). Exit with q.
