@@ -6,15 +6,22 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
+struct State {
+    posts: Vec<reddit::Post>,
+    selected: usize,
+}
+
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
-    ratatui::run(app)?;
+    let posts = reddit::fetch_reddit_content();
+    let mut state = State { posts, selected: 0 };
+    ratatui::run(|terminal| app(terminal, &mut state))?;
     Ok(())
 }
 
-fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
+fn app(terminal: &mut DefaultTerminal, state: &mut State) -> std::io::Result<()> {
     loop {
-        terminal.draw(render)?;
+        terminal.draw(|frame| render(frame, state))?;
         match crossterm::event::read()? {
             Event::Key(key) => {
                 if key.code == KeyCode::Char('q') {
@@ -26,7 +33,7 @@ fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
     }
 }
 
-fn render(frame: &mut Frame) {
+fn render(frame: &mut Frame, state: &State) {
     let outer_layout = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
@@ -39,8 +46,14 @@ fn render(frame: &mut Frame) {
         outer_layout[0],
     );
 
+    let content = if let Some(post) = state.posts.get(state.selected) {
+        format!("{}\n  {}", post.title, post.selftext)
+    } else {
+        "No posts loaded".to_string()
+    };
+
     frame.render_widget(
-        Paragraph::new("[content goes here]")
+        Paragraph::new(content)
             .block(Block::new().bold().fg(Color::Blue).borders(Borders::ALL)),
         outer_layout[1],
     );
